@@ -1,2 +1,2 @@
-# Objetos de base de datos Club Deportivo
-Script objetos base de datos Club Deportivo - Oracle
+# Objetos de base de datos Bootcamp Oracle - Club Deportivo
+Script de objetos de base de datos Club Deportivo - Oracle
