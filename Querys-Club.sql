@@ -21,5 +21,30 @@ commit;
 
 update valor_cuota_social set fevig = to_date('2020-03-31','yyyy-MM-dd') where idvalcuota = 1;
 
+select * from valor_cuota_social;
+
+select * from socio;
+
+select * from cuota
+select * from tasa_cambio;
+
+truncate table cuota;
+
+insert into cuota
+select SQ_CUOTA.NEXTVAL, IDSOCIO, 202006, 20000, 0,  20000, null, IDSOCIO, 'PEN', 'Cuota de Mayo 2020', sysdate, null
+from socio;
+
+select * from valor_cuota_social where fefinvig is null;
+
+select tasacambio from tasa_cambio where codmoneda = 'UF' and fecambio = to_date('2020-05-31', 'yyyy-MM-dd');
+
+FOR socio IN (select RUT, NOMBRES, APATERNO
+                         from socio) LOOP
+
+    dbms_output.put_line('Nombre:' || socio.NOMBRES);
+
+END LOOP;
+
+
 
 
