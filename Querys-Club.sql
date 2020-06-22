@@ -47,6 +47,11 @@ SELECT TRUNC(DBMS_RANDOM.VALUE(1,51)) random_numbers FROM dual CONNECT BY level 
 
 SELECT TRUNC(DBMS_RANDOM.VALUE(1,1000)) random_numbers FROM dual;
 
+truncate table socio;
+select * from socio;
+
+SELECT MIN(IDCLTE), MAX(IDCLTE) FROM CLIENTE_EXT;
+
 SET SERVEROUTPUT ON;
 DECLARE
     TYPE REFCURSOR IS REF CURSOR;
@@ -123,5 +128,10 @@ END;
 
 DROP TABLE JUGADOR_ATP;
 SELECT * FROM JUGADOR_ATP;
-    
+
+select * from socio order by idsocio asc;
+select count(1) from socio order by idsocio asc;
+
+SELECT * FROM JUGADOR_ATP;
+select * from cliente_ext order by idclte asc;
 
