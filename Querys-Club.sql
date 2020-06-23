@@ -135,3 +135,75 @@ select count(1) from socio order by idsocio asc;
 SELECT * FROM JUGADOR_ATP;
 select * from cliente_ext order by idclte asc;
 
+select * from valor_cuota_social;
+select * from tasa_cambio;
+select * from socio;
+--truncate table socio;
+select * from cuota;
+select * from jugador_atp;
+--truncate table jugador_atp
+select * from CLIENTE_EXT;
+select count(1) from CLIENTE_EXT;
+--truncate table CLIENTE_EXT
+SELECT MIN(IDCLTE), MAX(IDCLTE) FROM CLIENTE_EXT;
+
+-------------------------------------------------------------------------------------
+SET SERVEROUTPUT ON;
+DECLARE
+    TYPE REFCURSOR IS REF CURSOR;
+    V_CONT NUMBER(8,0);
+    V_RAND NUMBER(8,0);
+    V_MIN NUMBER(8,0);
+    V_MAX NUMBER(8,0);
+    V_RUT NUMBER(10,0);
+    V_DV VARCHAR2(1);
+    V_FECHA date;
+    CURSOR JUGADORES IS
+    SELECT RNK, NOMBRE, APATERNO, EDAD FROM JUGADOR_ATP WHERE RNK < 301 ORDER BY RNK ASC;
+
+BEGIN
+    SELECT COUNT(1) into V_CONT FROM CLIENTE_EXT;   
+   
+    SELECT MIN(IDCLTE), MAX(IDCLTE) INTO V_MIN, V_MAX FROM CLIENTE_EXT;
+    
+    DBMS_OUTPUT.PUT_LINE('V_CONT: ' || V_CONT || ', V_MIN:' || V_MIN);
+    
+    FOR J IN JUGADORES LOOP
+    
+        SELECT TRUNC(DBMS_RANDOM.VALUE(V_MIN,V_CONT)) INTO V_RAND FROM DUAL;
+        
+        DBMS_OUTPUT.PUT_LINE('V_RAND: ' || V_RAND);
+        
+        SELECT A.RUT, A.DV, A.FENAC into V_RUT, V_DV, V_FECHA FROM CLIENTE_EXT A WHERE A.IDCLTE = V_RAND;
+    
+        DBMS_OUTPUT.PUT_LINE('RUT:' || V_RUT || ',DV:' || V_DV || ', Nombre:' || J.NOMBRE || ',fenac:' || V_FECHA);
+        
+        PKG_SOCIO_CRUD.PRC_CREAR_SOCIO_EXT(V_RUT,V_DV,J.NOMBRE, J.APATERNO, NULL, 'M', V_FECHA, null, null);
+        
+    END LOOP;    
+END;
+
+SELECT * FROM CLIENTE_EXT A WHERE A.IDCLTE = 19317;
+
+SELECT * FROM CLIENTE_EXT order by idclte desc;
+
+grant select on cliente_ext to club002;
+grant select on jugador_atp to club002;
+
+truncate table cliente_ext;
+truncate table jugador_atp;
+
+insert into cliente_ext
+select * from club.cliente_ext;
+
+insert into jugador_atp
+select * from club.jugador_atp;
+
+select count (1) from socio;
+select * from socio;
+
+select * from cuota;
+
+
+
+
