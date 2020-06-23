@@ -203,7 +203,155 @@ select count (1) from socio;
 select * from socio;
 
 select * from cuota;
+----------------------------------------------------------------------------------------------------
+insert into tipo_socio (IDTIPO, GLOSA, FECRE, FEMOD)
+values(1, 'Visita', sysdate, null);
+
+insert into tipo_socio (IDTIPO, GLOSA, FECRE, FEMOD)
+values(2, 'Becado', sysdate, null);
+
+insert into tipo_socio (IDTIPO, GLOSA, FECRE, FEMOD)
+values(3, 'Colaborador', sysdate, null);
+
+insert into tipo_socio (IDTIPO, GLOSA, FECRE, FEMOD)
+values(4, 'Estudiante', sysdate, null);
+
+insert into tipo_socio (IDTIPO, GLOSA, FECRE, FEMOD)
+values(5, 'Mujer', sysdate, null);
+
+insert into tipo_socio (IDTIPO, GLOSA, FECRE, FEMOD)
+values(6, 'Honorario', sysdate, null);
+
+insert into tipo_socio (IDTIPO, GLOSA, FECRE, FEMOD)
+values(7, 'Normal', sysdate, null);
+
+select * from tipo_socio;
+SELECT * FROM SOCIO;
 
 
+UPDATE SOCIO  SET TIPOSOCIO = 7;
+COMMIT;
+ROLLBACK;
+
+UPDATE TIPO_SOCIO SET IDTIPO = 5 WHERE IDTIPO = 6; 
+UPDATE TIPO_SOCIO SET IDTIPO = 6 WHERE IDTIPO = 5; 
+
+DELETE FROM TIPO_SOCIO WHERE IDTIPO = 5;
+
+select * from estado_socio;
+
+select * from parametro;
+
+insert into parametro 
+values(1, 'DESCUENTO', 'PANDEMIA', 0.5, NULL, NULL, SYSDATE, NULL, NULL);
+
+insert into parametro 
+values(2, 'DESCUENTO', 'ADULTO MAYOR', NULL, 'S', NULL, SYSDATE, NULL, NULL);
 
 
+SET SERVEROUTPUT ON;
+DECLARE
+    TYPE REFCURSOR IS REF CURSOR;
+    V_CONT NUMBER(8,0);
+    V_RAND NUMBER(8,0);
+    V_MIN NUMBER(8,0);
+    V_MAX NUMBER(8,0);
+    V_RUT NUMBER(10,0);
+    V_DV VARCHAR2(1);
+    V_FECHA date;
+    CURSOR SOCIOS IS
+    SELECT IDSOCIO, NOMBRES, TIPOSOCIO FROM SOCIO;
+
+BEGIN
+    
+    SELECT MIN(IDSOCIO), MAX(IDSOCIO) INTO V_MIN, V_MAX FROM SOCIO;
+    --DBMS_OUTPUT.PUT_LINE('V_CONT: ' || V_CONT || ', V_MIN:' || V_MIN);
+    
+    FOR I IN 1..4 LOOP
+    
+        SELECT TRUNC(DBMS_RANDOM.VALUE(V_MIN,V_MAX)) INTO V_RAND FROM DUAL;
+        
+        DBMS_OUTPUT.PUT_LINE('V_RAND: ' || V_RAND);
+        
+        UPDATE SOCIO SET TIPOSOCIO = 3 WHERE IDSOCIO = V_RAND;
+        
+    END LOOP;    
+    
+    FOR I IN 1..30 LOOP
+    
+        SELECT TRUNC(DBMS_RANDOM.VALUE(V_MIN,V_MAX)) INTO V_RAND FROM DUAL;
+        
+        DBMS_OUTPUT.PUT_LINE('V_RAND: ' || V_RAND);
+        
+        UPDATE SOCIO SET TIPOSOCIO = 2 WHERE IDSOCIO = V_RAND;
+        
+    END LOOP;    
+    
+    -------ESTUDIANTES--------------------
+    FOR I IN 1..15 LOOP
+    
+        SELECT TRUNC(DBMS_RANDOM.VALUE(V_MIN,V_MAX)) INTO V_RAND FROM DUAL;
+        
+        DBMS_OUTPUT.PUT_LINE('V_RAND: ' || V_RAND);
+        
+        UPDATE SOCIO SET TIPOSOCIO = 4 WHERE IDSOCIO = V_RAND;
+        
+    END LOOP;
+    
+     -------HONORARIOS--------------------
+    FOR I IN 1..45 LOOP
+    
+        SELECT TRUNC(DBMS_RANDOM.VALUE(V_MIN,V_MAX)) INTO V_RAND FROM DUAL;
+        
+        DBMS_OUTPUT.PUT_LINE('V_RAND: ' || V_RAND);
+        
+        UPDATE SOCIO SET TIPOSOCIO = 5 WHERE IDSOCIO = V_RAND;
+        
+    END LOOP;
+    
+END;
+
+SELECT COUNT (*) FROM SOCIO WHERE TIPOSOCIO in (2,3,4,5);
+SELECT * FROM SOCIO WHERE TIPOSOCIO = 5;
+
+UPDATE SOCIO  SET TIPOSOCIO = 6;
+COMMIT;
+ROLLBACK;
+
+select * from tipo_socio;
+
+SET SERVEROUTPUT ON;
+DECLARE
+    TYPE REFCURSOR IS REF CURSOR;
+BEGIN  
+    
+    FOR S IN (SELECT * FROM (SELECT IDSOCIO FROM SOCIO WHERE TIPOSOCIO = 6 ORDER BY DBMS_RANDOM.RANDOM) WHERE ROWNUM < 21) LOOP
+        DBMS_OUTPUT.PUT_LINE('IDSOCIO:' || S.IDSOCIO);
+
+        UPDATE SOCIO SET TIPOSOCIO = 2 WHERE IDSOCIO = S.IDSOCIO;
+    END LOOP;
+    
+    FOR S IN (SELECT * FROM (SELECT IDSOCIO FROM SOCIO WHERE TIPOSOCIO = 6 ORDER BY DBMS_RANDOM.RANDOM) WHERE ROWNUM < 5) LOOP
+        DBMS_OUTPUT.PUT_LINE('IDSOCIO:' || S.IDSOCIO);
+
+        UPDATE SOCIO SET TIPOSOCIO = 3 WHERE IDSOCIO = S.IDSOCIO;
+    END LOOP;
+    
+    FOR S IN (SELECT * FROM (SELECT IDSOCIO FROM SOCIO WHERE TIPOSOCIO = 6 ORDER BY DBMS_RANDOM.RANDOM) WHERE ROWNUM < 16) LOOP
+        DBMS_OUTPUT.PUT_LINE('IDSOCIO:' || S.IDSOCIO);
+
+        UPDATE SOCIO SET TIPOSOCIO = 4 WHERE IDSOCIO = S.IDSOCIO;
+    END LOOP;
+    
+    FOR S IN (SELECT * FROM (SELECT IDSOCIO FROM SOCIO WHERE TIPOSOCIO = 6 ORDER BY DBMS_RANDOM.RANDOM) WHERE ROWNUM < 11) LOOP
+        DBMS_OUTPUT.PUT_LINE('IDSOCIO:' || S.IDSOCIO);
+
+        UPDATE SOCIO SET TIPOSOCIO = 5 WHERE IDSOCIO = S.IDSOCIO;
+    END LOOP;
+    
+END;
+
+SELECT * FROM SOCIO WHERE TIPOSOCIO = 2;
+SELECT * FROM SOCIO WHERE TIPOSOCIO = 3;
+SELECT * FROM SOCIO WHERE TIPOSOCIO = 4;
+SELECT * FROM SOCIO WHERE TIPOSOCIO = 5;
