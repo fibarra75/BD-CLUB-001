@@ -52,6 +52,7 @@ select * from socio;
 
 SELECT MIN(IDCLTE), MAX(IDCLTE) FROM CLIENTE_EXT;
 
+--GENERAR SOCIOS
 SET SERVEROUTPUT ON;
 DECLARE
     TYPE REFCURSOR IS REF CURSOR;
@@ -86,8 +87,9 @@ BEGIN
     END LOOP;    
 END;
 
-select * from cliente_pso;
-
+select * from valor_cuota_social;
+ select * from cliente_pso;
+SELECT COUNT(*) FROM SOCIO;
 select * from cliente_ext;
 
 INSERT INTO CLIENTE_EXT
@@ -355,3 +357,244 @@ SELECT * FROM SOCIO WHERE TIPOSOCIO = 2;
 SELECT * FROM SOCIO WHERE TIPOSOCIO = 3;
 SELECT * FROM SOCIO WHERE TIPOSOCIO = 4;
 SELECT * FROM SOCIO WHERE TIPOSOCIO = 5;
+
+SELECT * FROM valor_cuota_social
+select * from pso_cuota;
+select * from cuota;
+select * from socio;
+select * from cuota where monto_dscto > 0;
+truncate table cuota;
+
+SET SERVEROUTPUT ON;
+DECLARE
+    TYPE REFCURSOR IS REF CURSOR;
+    V_CONT NUMBER(8,0);
+    
+
+BEGIN
+        insert into pso_cuota (IDSOCIO, PERIODO, MONTO_BRUTO, MONTO_DSCTO, MONTO_NETO, MONTO_ABONO, IDPAGADOR, ESTADO, OBSERVACION, FECRE, FEMOD)
+        values (364, 202006, 20000, 0,  20000, null, 364, 'PEN', 'Cuota de Junio 2020', sysdate, null);
+        
+        SELECT COUNT(1) INTO V_CONT  FROM PSO_CUOTA;
+        DBMS_OUTPUT.PUT_LINE('V_CONT: ' || V_CONT);
+END;
+
+COMMIT;
+
+
+SELECT S.RUT, S.NOMBRES, S.TIPOSOCIO, C.* 
+FROM SOCIO S, CUOTA C
+WHERE S.IDSOCIO = C.IDSOCIO AND S.TIPOSOCIO IN (2,3,5);
+
+SELECT S.RUT, S.NOMBRES, S.TIPOSOCIO, C.* 
+FROM SOCIO S, CUOTA C
+WHERE S.IDSOCIO = C.IDSOCIO AND S.TIPOSOCIO = 4;
+
+SELECT S.RUT, S.NOMBRES, S.TIPOSOCIO, C.* 
+FROM SOCIO S, CUOTA C
+WHERE S.IDSOCIO = C.IDSOCIO AND S.SEXO = 'F';
+
+select * from socio where sexo = 'F'
+
+---------------------------------TAREA 24.06.2020------------------------------------------------
+--GENERAR SOCIOS
+SET SERVEROUTPUT ON;
+DECLARE
+    TYPE REFCURSOR IS REF CURSOR;
+    V_CONT NUMBER(8,0);
+    V_RAND NUMBER(8,0);
+    V_MIN NUMBER(8,0);
+    V_MAX NUMBER(8,0);
+    V_RUT NUMBER(10,0);
+    V_DV VARCHAR2(1);
+    V_FECHA date;
+    CURSOR JUGADORES IS
+    --GENERAR 500 SOCIOS
+    SELECT RNK, NOMBRE, APATERNO, EDAD FROM JUGADOR_ATP WHERE RNK < 501 ORDER BY RNK ASC;
+
+BEGIN
+    SELECT COUNT(1) into V_CONT FROM CLIENTE_EXT;   
+   
+    SELECT MIN(IDCLTE), MAX(IDCLTE) INTO V_MIN, V_MAX FROM CLIENTE_EXT;
+    
+    DBMS_OUTPUT.PUT_LINE('V_CONT: ' || V_CONT || ', V_MIN:' || V_MIN);
+    
+    FOR J IN JUGADORES LOOP
+    
+        SELECT TRUNC(DBMS_RANDOM.VALUE(V_MIN,V_CONT)) INTO V_RAND FROM DUAL;
+        
+        --select rut, dv, fenac into v_rut, v_dv, v_fecha from cliente_pso where rownum = v_rand;
+        SELECT A.RUT, A.DV, A.FENAC into V_RUT, V_DV, V_FECHA FROM CLIENTE_EXT A WHERE A.IDCLTE = V_RAND;
+    
+        DBMS_OUTPUT.PUT_LINE('RUT:' || V_RUT || ',DV:' || V_DV || ', Nombre:' || J.NOMBRE || ',fenac:' || V_FECHA);
+        
+        PKG_SOCIO_CRUD.PRC_CREAR_SOCIO_EXT(V_RUT,V_DV,J.NOMBRE, J.APATERNO, NULL, 'M', V_FECHA, null, null);
+        
+    END LOOP;    
+END;
+
+--VACIAR LA TABLA SOCIO
+--TRUNCATE TABLE SOCIO;
+COMMIT;
+SELECT * FROM SOCIO;
+SELECT COUNT (1) FROM SOCIO;
+
+----GENERAR TIPOS DE SOCIOS----
+SET SERVEROUTPUT ON;
+DECLARE
+    TYPE REFCURSOR IS REF CURSOR;
+    V_CONT NUMBER(8,0);
+    V_RAND NUMBER(8,0);
+    V_MIN NUMBER(8,0);
+    V_MAX NUMBER(8,0);
+    V_RUT NUMBER(10,0);
+    V_DV VARCHAR2(1);
+    V_FECHA date;
+    CURSOR SOCIOS IS
+    SELECT IDSOCIO, NOMBRES, TIPOSOCIO FROM SOCIO;
+
+BEGIN
+    
+    SELECT MIN(IDSOCIO), MAX(IDSOCIO) INTO V_MIN, V_MAX FROM SOCIO;
+    --DBMS_OUTPUT.PUT_LINE('V_CONT: ' || V_CONT || ', V_MIN:' || V_MIN);
+    
+    --BECADO ID= 2 10% SOCIOS BECADOS (50)
+    FOR I IN 1..50 LOOP
+    
+        SELECT TRUNC(DBMS_RANDOM.VALUE(V_MIN,V_MAX)) INTO V_RAND FROM DUAL;
+        
+        DBMS_OUTPUT.PUT_LINE('V_RAND: ' || V_RAND);
+        
+        UPDATE SOCIO SET TIPOSOCIO = 2 WHERE IDSOCIO = V_RAND;
+        
+    END LOOP;    
+    --COLABORADOR ID= 3 COLABORADORES 6
+    FOR I IN 1..6 LOOP
+    
+        SELECT TRUNC(DBMS_RANDOM.VALUE(V_MIN,V_MAX)) INTO V_RAND FROM DUAL;
+        
+        DBMS_OUTPUT.PUT_LINE('V_RAND: ' || V_RAND);
+        
+        UPDATE SOCIO SET TIPOSOCIO = 3 WHERE IDSOCIO = V_RAND;
+        
+    END LOOP;    
+    
+    --HONORARIOS ID= 5 HONORARIOS EL 5% (25)
+    FOR I IN 1..25 LOOP
+    
+        SELECT TRUNC(DBMS_RANDOM.VALUE(V_MIN,V_MAX)) INTO V_RAND FROM DUAL;
+        
+        DBMS_OUTPUT.PUT_LINE('V_RAND: ' || V_RAND);
+        
+        UPDATE SOCIO SET TIPOSOCIO = 5 WHERE IDSOCIO = V_RAND;
+        
+    END LOOP;
+    
+    --ESTUDIANTE ID= 4 8% (40)
+    FOR I IN 1..40 LOOP
+    
+        SELECT TRUNC(DBMS_RANDOM.VALUE(V_MIN,V_MAX)) INTO V_RAND FROM DUAL;
+        
+        DBMS_OUTPUT.PUT_LINE('V_RAND: ' || V_RAND);
+        
+        UPDATE SOCIO SET TIPOSOCIO = 4 WHERE IDSOCIO = V_RAND;
+        
+    END LOOP;
+    
+END;
+
+SELECT COUNT (1) FROM SOCIO WHERE TIPOSOCIO in (2,3,4,5);
+--BECADOS
+SELECT COUNT (1) FROM SOCIO WHERE TIPOSOCIO = 2;
+--COLABORADOR
+SELECT COUNT (1) FROM SOCIO WHERE TIPOSOCIO = 3;
+--HONORARIOS
+SELECT COUNT (1) FROM SOCIO WHERE TIPOSOCIO = 5;
+--ESTUDIANTE
+SELECT COUNT (1) FROM SOCIO WHERE TIPOSOCIO = 4;
+
+SELECT * FROM SOCIO;
+SELECT * FROM TIPO_SOCIO;
+SELECT * FROM CUOTA;
+SELECT * FROM VALOR_CUOTA_SOCIAL;
+SELECT * FROM TASA_CAMBIO;
+UPDATE VALOR_CUOTA_SOCIAL SET FEFINVIG = to_date('2020-05-31','yyyy-MM-dd') WHERE IDVALCUOTA = 3;
+
+INSERT INTO VALOR_CUOTA_SOCIAL (IDVALCUOTA, VALOR, CODMONEDA, FECRE, FEINIVIG, FEFINVIG, OBSERVACION)
+VALUES(4, 2.5, 'UF', to_date('2020-06-25','yyyy-MM-dd'), to_date('2020-06-01','yyyy-MM-dd'), NULL, 'Cuota actual');
+insert into valor_cuota_social values (3, 0.74, 'UF', to_date('2020-03-15','yyyy-MM-dd'), to_date('2020-03-31','yyyy-MM-dd'), null, 'Cuota durante pandemia');
+
+-------PAGO CUOTA SEGUN TIPO DE SOCIO-------------------------
+DECLARE
+  v_monto number(12,4);
+  v_tipocambio number(18,4);
+  v_valorcuotaclp number(10,0);
+  V_CONT NUMBER(8,0);
+  V_TIPOSOCIO NUMBER(4,0);
+  V_SEXO VARCHAR2(1);
+  
+  BEGIN
+  
+    select valor into v_monto from valor_cuota_social where fefinvig is null;    
+    --ANTERIORMENTE FECAMBIO ERA 2020-05-31
+    select tasacambio into v_tipocambio from tasa_cambio where codmoneda = 'UF' and fecambio = to_date('2020-06-20', 'yyyy-MM-dd');
+    select round(v_monto * v_tipocambio) into v_valorcuotaclp from dual;
+
+    dbms_output.put_line('v_monto: ' || v_monto);
+    dbms_output.put_line('v_tipocambio: ' || v_tipocambio);
+    dbms_output.put_line('v_valorcuotaclp: ' || v_valorcuotaclp);
+
+    FOR SOCIO IN (select IDSOCIO, RUT, DV, NOMBRES, APATERNO from SOCIO) LOOP
+
+        dbms_output.put_line('Nombre:' || socio.NOMBRES);
+        
+        --La idea es grabar todas las cuotas en tabla paso, luego hacer los calculos respectivos y grabarlas en la tabla cuota
+        --¿Un insert a la tabla paso es diferente?
+        insert into pso_cuota (IDSOCIO, PERIODO, MONTO_BRUTO, MONTO_DSCTO, MONTO_NETO, MONTO_ABONO, IDPAGADOR, ESTADO, OBSERVACION, FECRE, FEMOD)
+        values (SOCIO.IDSOCIO, P_PERIODO, v_valorcuotaclp, 0,  v_valorcuotaclp, null, SOCIO.IDSOCIO, 'PEN', 'Cuota de Junio 2020', sysdate, null);
+        
+    END LOOP;
+    
+     SELECT COUNT(1) INTO V_CONT  FROM PSO_CUOTA;
+     DBMS_OUTPUT.PUT_LINE('V_CONT: ' || V_CONT);
+    
+    /*Hacer unos if consultando si el idSocio de un socio en especifico es Becado = 2, Colaborador= 3 y Honorario = 5
+    entonces dejar cuota en 0, ya que estos tipos de socios no pagan cuotas*/
+    
+    FOR PC IN (SELECT IDSOCIO FROM PSO_CUOTA) LOOP
+        SELECT TIPOSOCIO, SEXO INTO V_TIPOSOCIO, V_SEXO FROM SOCIO WHERE IDSOCIO = PC.IDSOCIO;  
+        
+        IF(V_TIPOSOCIO = 2 OR V_TIPOSOCIO = 3 OR V_TIPOSOCIO = 5 ) THEN
+            UPDATE PSO_CUOTA
+            SET MONTO_NETO = 0,
+            MONTO_DSCTO = MONTO_BRUTO
+            WHERE IDSOCIO = PC.IDSOCIO;
+        END IF;
+        
+        IF(V_TIPOSOCIO = 4) THEN
+            UPDATE PSO_CUOTA
+            SET MONTO_NETO = 10000,
+            MONTO_DSCTO = MONTO_BRUTO - 10000
+            WHERE IDSOCIO = PC.IDSOCIO;
+        END IF;
+        
+        IF(V_SEXO = 'F') THEN
+            UPDATE PSO_CUOTA
+            SET MONTO_NETO = 0.5 * MONTO_BRUTO,
+            MONTO_DSCTO = MONTO_BRUTO - 0.5 * MONTO_BRUTO
+            WHERE IDSOCIO = PC.IDSOCIO;
+        END IF;
+        
+    END LOOP;
+    
+    INSERT INTO CUOTA 
+    SELECT SQ_CUOTA.NEXTVAL, IDSOCIO, PERIODO, MONTO_BRUTO, MONTO_DSCTO, MONTO_NETO, MONTO_ABONO, IDPAGADOR, ESTADO, OBSERVACION, FECRE, FEMOD 
+    FROM PSO_CUOTA;
+    
+    
+    /*Agregar al if mencionado anteriormente los casos de tipoSocio Estudiante = 4 y mujer (sexo = F) aplicar el descuento 
+    correspondiente*/
+    
+    /*Finalmente de los if insertar las cuotas definitivas en la tabla Cuota*/
+
+  END;
