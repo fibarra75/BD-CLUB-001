@@ -395,7 +395,8 @@ FROM SOCIO S, CUOTA C
 WHERE S.IDSOCIO = C.IDSOCIO AND S.SEXO = 'F';
 
 select * from socio where sexo = 'F'
---truncate table socio;
+truncate table socio;
+truncate table cuota;
 select * from socio;
 
 ---------------------------------TAREA 24.06.2020------------------------------------------------
@@ -527,4 +528,12 @@ SELECT FENAC FROM SOCIO WHERE FENAC IS NULL;
 SELECT SYSDATE FROM DUAL;
 
 select * from cuota;
+select * from socio;
+
+select s.rut, s.nombres, s.apaterno, s.fenac, s.tiposocio, c.*
+from socio s, cuota c
+where s.idsocio = c.idsocio
+and (sysdate - s.fenac)/365 >= 60; 
+
+truncate table cuota;
     
