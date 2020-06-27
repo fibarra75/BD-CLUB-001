@@ -1,11 +1,13 @@
 /*
     GENERAR CUOTAS Y DESCUENTOS PARA UN PERIODO (AAAAMM)
+    
+    1. SIN CURSOR PARA CREAR LA CUOTAS INICIALES (SIN DESCUENTOS)
 */
 SET SERVEROUTPUT ON;
 DECLARE
-  v_monto number(12,4);
-  v_tipocambio number(18,4);
-  v_valorcuotaclp number(10,0);
+  V_MONTO number(12,4);
+  V_TIPOCAMBIO number(18,4);
+  V_VALORCUOTACLP number(10,0);
   V_CONT NUMBER(8,0);
   V_TIPOSOCIO NUMBER(4,0);
   V_SEXO VARCHAR2(1);
@@ -15,23 +17,20 @@ DECLARE
   BEGIN
     
     V_PERIODO := 202006;
+    
+    SELECT VALOR INTO V_MONTO FROM VALOR_CUOTA_SOCIAL WHERE FEFINVIG IS NULL;    
+    SELECT TASACAMBIO INTO V_TIPOCAMBIO FROM TASA_CAMBIO WHERE CODMONEDA = 'UF' AND FECAMBIO = TO_DATE('2020-05-31', 'yyyy-MM-dd');
+    SELECT ROUND(V_MONTO * V_TIPOCAMBIO) INTO V_VALORCUOTACLP FROM DUAL;
 
-    select valor into v_monto from valor_cuota_social where fefinvig is null;    
-    select tasacambio into v_tipocambio from tasa_cambio where codmoneda = 'UF' and fecambio = to_date('2020-05-31', 'yyyy-MM-dd');
-    select round(v_monto * v_tipocambio) into v_valorcuotaclp from dual;
+    DBMS_OUTPUT.PUT_LINE('V_MONTO: ' || V_MONTO || ', V_TIPOCAMBIO:' || V_TIPOCAMBIO || ',V_VALORCUOTACLP' || V_VALORCUOTACLP);
 
-    dbms_output.put_line('v_monto: ' || v_monto || ', v_tipocambio:' || v_tipocambio || ',v_valorcuotaclp' || v_valorcuotaclp);
-
-    FOR SOCIO IN (select IDSOCIO, RUT, DV, NOMBRES, APATERNO from SOCIO) LOOP
-        dbms_output.put_line('Nombre:' || socio.NOMBRES);
-        
-        insert into pso_cuota (IDSOCIO, PERIODO, MONTO_BRUTO, MONTO_DSCTO, MONTO_NETO, MONTO_ABONO, IDPAGADOR, ESTADO, OBSERVACION, FECRE, FEMOD)
-        values (SOCIO.IDSOCIO, V_PERIODO, v_valorcuotaclp, 0,  v_valorcuotaclp, null, SOCIO.IDSOCIO, 'PEN', 'Cuota de Junio 2020', sysdate, null);
-    END LOOP;
+    INSERT INTO PSO_CUOTA
+    SELECT IDSOCIO, V_PERIODO, V_VALORCUOTACLP, 0, V_VALORCUOTACLP, NULL, IDSOCIO, 'PEN', 'Cuota de Junio 2020', SYSDATE, NULL
+    FROM SOCIO;
 
     SELECT COUNT(1) INTO V_CONT  FROM PSO_CUOTA;
     DBMS_OUTPUT.PUT_LINE('V_CONT: ' || V_CONT);
-
+    
     FOR PC IN (SELECT IDSOCIO FROM PSO_CUOTA) LOOP
         SELECT TIPOSOCIO, SEXO, FENAC INTO V_TIPOSOCIO, V_SEXO, V_FENAC FROM SOCIO WHERE IDSOCIO = PC.IDSOCIO;  
 
@@ -72,10 +71,12 @@ DECLARE
 
     INSERT INTO CUOTA 
     SELECT SQ_CUOTA.NEXTVAL, IDSOCIO, PERIODO, MONTO_BRUTO, MONTO_DSCTO, MONTO_NETO, MONTO_ABONO, IDPAGADOR, ESTADO, OBSERVACION, FECRE, FEMOD 
-    FROM PSO_CUOTA;
+    FROM PSO_CUOTA;    
 END;
 
+TRUNCATE TABLE CUOTA;
 SELECT * FROM CUOTA;
+SELECT COUNT(1) FROM CUOTA;
 SELECT * FROM CUOTA WHERE MONTO_DSCTO > 0;
 
 SELECT S.NOMBRES, S.APATERNO, C.MONTO_BRUTO, C.MONTO_DSCTO, C.MONTO_NETO, T.GLOSA
