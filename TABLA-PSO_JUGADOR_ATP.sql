@@ -1,0 +1,13 @@
+  CREATE GLOBAL TEMPORARY TABLE "PSO_JUGADOR_ATP" 
+   (	"RNK" NUMBER(6,0), 
+	"NOMBRE" NVARCHAR2(60), 
+	"APATERNO" NVARCHAR2(60), 
+	"EDAD" NUMBER(4,0)
+   ) ON COMMIT DELETE ROWS ;
+--------------------------------------------------------
+--  Constraints for Table PSO_JUGADOR_ATP
+--------------------------------------------------------
+
+  ALTER TABLE "PSO_JUGADOR_ATP" MODIFY ("RNK" NOT NULL ENABLE);
+  ALTER TABLE "PSO_JUGADOR_ATP" MODIFY ("NOMBRE" NOT NULL ENABLE);
+  ALTER TABLE "PSO_JUGADOR_ATP" MODIFY ("APATERNO" NOT NULL ENABLE);
